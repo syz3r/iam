@@ -37,8 +37,8 @@
 
 <style lang="scss" scoped>
   .search-bar {
-    padding: 0.5rem 1.5rem;
-    border-bottom: 3px solid #efefef;
+    padding: 0.5rem 2.3rem;
+    border-bottom: 5px solid #efefef;
     margin:0;
 
     input {

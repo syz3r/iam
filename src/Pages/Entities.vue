@@ -5,7 +5,8 @@
         <div class="field">
           <label class="label">Create new Entity</label>
           <div class="control">
-            <input class="input" type="text" @keyup.enter="createIntentExec" v-model="newEntity" placeholder="Entity Name">
+            <input class="input" type="text" @keyup.enter="createEntityExec" v-model="newEntity"
+                   placeholder="Entity Name">
           </div>
         </div>
 
@@ -45,7 +46,8 @@
         :item="item"
         :class="{ selected: selectedValue ==item.id }"
         :isDisabled="selectedValue != item.id"
-        @click="selectItem(item)"
+        @click="selectEntity(item)"
+        @delete="deleteEntity(item)"
       ></list-item>
     </div>
   </div>
@@ -56,48 +58,21 @@
   import ListItem from '../components/ListItem'
   import Modal from '../components/Modal'
   import Search from '../components/Search'
+  import { mapActions, mapGetters } from 'vuex'
+  import Services from '../services'
+
   export default {
     name: 'Entities',
+    beforeMount () {
+      if (!this.getItems.length) {
+        Services.entityService(this.$store)
+          .catch(err => {
+            console.log(err)
+          })
+      }
+    },
     data () {
       return {
-        items: [
-          {
-            id: 1,
-            title: 'video.download'
-          },
-          {
-            id: 2,
-            title: 'video.play'
-          },
-          {
-            id: 3,
-            title: 'video.search'
-          },
-          {
-            id: 4,
-            title: 'video_controls.stop'
-          },
-          {
-            id: 5,
-            title: 'video_controls.play'
-          },
-          {
-            id: 6,
-            title: 'video_controls.rewind'
-          },
-          {
-            id: 7,
-            title: 'video_controls.forward'
-          },
-          {
-            id: 8,
-            title: 'video_controls.repeat'
-          },
-          {
-            id: 9,
-            title: 'video_controls.resume'
-          }
-        ],
         selectedValue: '',
         modalActive: false,
         newEntity: '',
@@ -105,24 +80,29 @@
       }
     },
     computed: {
+      ...mapGetters('entities', ['getItems']),
       filteredList () {
-        return this.items.filter(item => {
+        return this.getItems.filter(item => {
           return item.title.toLowerCase().includes(this.searchTerm.toLowerCase())
         })
       }
     },
     methods: {
-      selectItem (item) {
+      ...mapActions('entities', ['addItem', 'deleteItem']),
+      selectEntity (item) {
         item.selected = !item.selected
         this.selectedValue = item.id
+      },
+      deleteEntity (item) {
+        this.deleteItem(item)
       },
       createEntity () {
         this.modalActive = true
       },
       createEntityExec () {
         if (this.newEntity) {
-          const lastItem = this.items[this.items.length - 1]
-          this.items.push({
+          const lastItem = (this.getItems && this.getItems.length > 0) ? this.getItems[this.getItems.length - 1] : {id: 0}
+          this.addItem({
             id: lastItem.id + 1,
             title: this.newEntity
           })

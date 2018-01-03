@@ -17,7 +17,7 @@
                 </span>
           </a>
           <a class="button" href="" :disabled="isDisabled"><i class="fa fa-pencil" aria-hidden="true"></i></a>
-          <a class="button" href="" :disabled="isDisabled"><i class="fa fa-trash" aria-hidden="true"></i></a>
+          <a class="button" @click="onDelete" :disabled="isDisabled"><i class="fa fa-trash" aria-hidden="true"></i></a>
         </div>
       </div>
     </div>
@@ -29,8 +29,11 @@
     name: 'ListItem',
     props: ['item', 'isDisabled'],
     methods: {
-      onClick: function () {
+      onClick () {
         this.$emit('click', this.item)
+      },
+      onDelete () {
+        this.$emit('delete', this.item)
       }
     }
   }

@@ -1,7 +1,7 @@
 <template>
   <div class="sidebar column is-3">
     <div class="logo">
-      <router-link to="/">LOGO</router-link>
+      <router-link to="/"><img width="50" src="/static/logo.png" alt=""></router-link>
     </div>
     <main-menu></main-menu>
   </div>

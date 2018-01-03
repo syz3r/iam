@@ -45,8 +45,8 @@
         :item="item"
         :class="{ selected: selectedValue ==item.id }"
         :isDisabled="selectedValue != item.id"
-        @click="selectItem(item)"
-
+        @click="selectIntent(item)"
+        @delete="deleteIntent(item)"
 
       ></list-item>
     </div>
@@ -58,48 +58,21 @@
   import ListItem from '../components/ListItem'
   import Modal from '../components/Modal'
   import Search from '../components/Search'
+  import { mapActions, mapGetters } from 'vuex'
+  import Services from '../services'
+
   export default {
     name: 'Intent',
+    beforeMount () {
+      if (!this.getItems.length) {
+        Services.intentService(this.$store)
+          .catch(err => {
+            console.log(err)
+          })
+      }
+    },
     data () {
       return {
-        items: [
-          {
-            id: 1,
-            title: 'video.download'
-          },
-          {
-            id: 2,
-            title: 'video.play'
-          },
-          {
-            id: 3,
-            title: 'video.search'
-          },
-          {
-            id: 4,
-            title: 'video_controls.stop'
-          },
-          {
-            id: 5,
-            title: 'video_controls.play'
-          },
-          {
-            id: 6,
-            title: 'video_controls.rewind'
-          },
-          {
-            id: 7,
-            title: 'video_controls.forward'
-          },
-          {
-            id: 8,
-            title: 'video_controls.repeat'
-          },
-          {
-            id: 9,
-            title: 'video_controls.resume'
-          }
-        ],
         selectedValue: '',
         modalActive: false,
         newIntent: '',
@@ -107,24 +80,29 @@
       }
     },
     computed: {
+      ...mapGetters('intent', ['getItems']),
       filteredList () {
-        return this.items.filter(item => {
+        return this.getItems.filter(item => {
           return item.title.toLowerCase().includes(this.searchTerm.toLowerCase())
         })
       }
     },
     methods: {
-      selectItem (item) {
+      ...mapActions('intent', ['addItem', 'deleteItem']),
+      selectIntent (item) {
         item.selected = !item.selected
         this.selectedValue = item.id
+      },
+      deleteIntent (item) {
+        this.deleteItem(item)
       },
       createIntent () {
         this.modalActive = true
       },
       createIntentExec () {
         if (this.newIntent) {
-          const lastItem = this.items[this.items.length - 1]
-          this.items.push({
+          const lastItem = (this.getItems && this.getItems.length > 0) ? this.getItems[this.getItems.length - 1] : {id: 0}
+          this.addItem({
             id: lastItem.id + 1,
             title: this.newIntent
           })
