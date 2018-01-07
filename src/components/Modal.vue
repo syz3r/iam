@@ -4,12 +4,22 @@
     <div class="modal-content">
       <slot></slot>
     </div>
-    <button class="modal-close is-large" aria-label="close"></button>
+    <button class="modal-close is-large" @click.prevent="closeModal" aria-label="close"></button>
   </div>
 </template>
 
 <script>
   export default {
-    name: 'Modal'
+    name: 'Modal',
+    methods: {
+      closeModal () {
+        this.$emit('closeModal')
+      }
+    }
   }
 </script>
+<style lang="scss" scoped>
+  .modal-content {
+    width: 52vw;
+  }
+</style>

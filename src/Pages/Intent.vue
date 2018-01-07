@@ -1,23 +1,19 @@
 <template>
   <div>
-    <modal :class="{'is-active': modalActive}">
-      <div class="box">
-        <div class="field">
-          <label class="label">Create new Intent</label>
-          <div class="control">
-            <input class="input" type="text" @keyup.enter="createIntentExec" v-model="newIntent" placeholder="Intent Name">
-          </div>
-        </div>
-
-        <div class="field is-grouped">
-          <div class="control">
-            <button class="button is-link" @click="createIntentExec">Create</button>
-          </div>
-          <div class="control">
-            <button class="button is-text" @click="closeModal">Cancel</button>
-          </div>
-        </div>
-      </div>
+    <modal
+      :class="{'is-active': showCreateDialog}"
+      @closeModal="showCreateDialog = false"
+    >
+      <create-intent
+        @createIntent="createIntentExec"
+        @close="showCreateDialog = false"
+      ></create-intent>
+    </modal>
+    <modal
+      :class="{'is-active': showEditDialog}"
+      @closeModal="showEditDialog = false"
+    >
+      <edit-intent></edit-intent>
     </modal>
     <div class="level page-head">
       <div class="level-left">
@@ -30,7 +26,7 @@
       </div>
       <div class="level-right">
         <div class="level-item">
-          <a class="button is-success" @click="createIntent()">Create Intent</a></div>
+          <a class="button is-success" @click="showCreateIntent()">Create Intent</a></div>
       </div>
     </div>
     <search
@@ -45,6 +41,7 @@
         :item="item"
         :class="{ selected: selectedValue ==item.id }"
         :isDisabled="selectedValue != item.id"
+        @edit="editIntentParam(item)"
         @click="selectIntent(item)"
         @delete="deleteIntent(item)"
 
@@ -60,6 +57,8 @@
   import Search from '../components/Search'
   import { mapActions, mapGetters } from 'vuex'
   import Services from '../services'
+  import CreateIntent from '../components/modals/CreateIntent'
+  import EditIntent from '../components/modals/EditIntent'
 
   export default {
     name: 'Intent',
@@ -74,7 +73,8 @@
     data () {
       return {
         selectedValue: '',
-        modalActive: false,
+        showCreateDialog: false,
+        showEditDialog: false,
         newIntent: '',
         searchTerm: ''
       }
@@ -93,25 +93,27 @@
         item.selected = !item.selected
         this.selectedValue = item.id
       },
+      editIntentParam (item) {
+        this.showEditDialog = true
+      },
       deleteIntent (item) {
         this.deleteItem(item)
       },
-      createIntent () {
-        this.modalActive = true
+      showCreateIntent () {
+        this.showCreateDialog = true
       },
-      createIntentExec () {
-        if (this.newIntent) {
+      createIntentExec (newIntent) {
+        if (newIntent) {
           const lastItem = (this.getItems && this.getItems.length > 0) ? this.getItems[this.getItems.length - 1] : {id: 0}
           this.addItem({
             id: lastItem.id + 1,
-            title: this.newIntent
+            title: newIntent
           })
-          this.newIntent = ''
-          this.modalActive = false
+          this.showCreateDialog = false
         }
       },
       closeModal () {
-        this.modalActive = false
+        this.showCreateDialog = false
       },
       handleSearch (term) {
         this.searchTerm = term
@@ -119,9 +121,11 @@
 
     },
     components: {
+      CreateIntent,
       ListItem,
       Modal,
-      Search
+      Search,
+      EditIntent
     }
   }
 </script>

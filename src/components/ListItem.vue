@@ -8,15 +8,15 @@
       </div>
       <div class="level-right">
         <div class="level-item"  >
-          <a class="button" href="" :disabled="isDisabled">
+          <router-link class="button" :to="{ name: 'EditPage', params: { id: item.id }}" :disabled="isDisabled">
                 <span class="icon">
                   <i class="fa fa-pencil" aria-hidden="true"></i>
                 </span>
             <span>
                   Edit Dialogue
                 </span>
-          </a>
-          <a class="button" href="" :disabled="isDisabled"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+          </router-link>
+          <a class="button"  href="" :disabled="isDisabled"><i class="fa fa-pencil" aria-hidden="true"></i></a>
           <a class="button" @click="onDelete" :disabled="isDisabled"><i class="fa fa-trash" aria-hidden="true"></i></a>
         </div>
       </div>
@@ -29,11 +29,18 @@
     name: 'ListItem',
     props: ['item', 'isDisabled'],
     methods: {
+      editParam () {
+        if (!this.isDisabled) {
+          this.$emit('edit', this.item)
+        }
+      },
       onClick () {
         this.$emit('click', this.item)
       },
       onDelete () {
-        this.$emit('delete', this.item)
+        if (!this.isDisabled) {
+          this.$emit('delete', this.item)
+        }
       }
     }
   }
